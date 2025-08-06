@@ -1,0 +1,34 @@
+name: Build Java Game
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Compile Java source files
+        run: |
+          mkdir out
+          javac -d out $(Get-ChildItem -Recurse -Filter *.java | ForEach-Object { $_.FullName })
+
+      - name: Create JAR
+        run: |
+          jar cfm FlappyArnav.jar manifest.txt -C out .
+
+      - name: Upload artifact (JAR)
+        uses: actions/upload-artifact@v3
+        with:
+          name: FlappyArnav-JAR
+          path: FlappyArnav.jar
